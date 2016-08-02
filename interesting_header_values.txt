@@ -1,0 +1,101 @@
+AkamaiGHost
+Apache
+RomPager/4.07 UPnP/1.0
+Microsoft-IIS/7.5
+micro_httpd
+nginx
+httpd
+Apache/2.2.15 (CentOS)
+Microsoft-IIS/6.0
+GoAhead-Webs	
+lighttpd/1.4.31
+Microsoft-HTTPAPI/2.0
+mini_httpd/1.19 19dec2003
+DNVRS-Webs
+uc-httpd 1.0.0
+Microsoft-IIS/8.5
+Apache/2.4.7 (Ubuntu)
+cloudflare-nginx
+Boa/0.94.14rc21
+Microsoft-IIS/10.0
+Apache-Coyote/1.1
+Boa/0.94.13
+Apache/2.2.3 (CentOS)
+Cross Web Server
+lighttpd/1.4.35
+nginx/1.4.6 (Ubuntu)
+Apache/2.2.22 (Debian)
+DVRDVS-Webs
+Microsoft-IIS/8.0
+SonicWALL
+Router Webserver
+cisco-IOS
+Microsoft-IIS/7.0
+nginx/1.8.1
+Virtual Web 0.9
+Apache/2.2.22 (Ubuntu)
+lighttpd/1.4.28
+WebServer/1.0 UPnP/1.0
+Mini web server 1.0 ZTE corp 2005.
+App-webs/
+Apache/2
+nginx/1.0.11
+alphapd
+nginx/1.8.0
+gws
+WebProxy/1.0 Pre-Alpha
+ZTE Web Server/1.0.0
+BigIP
+RomPager/4.51 UPnP/1.0
+
+
+ASP.NET
+PHP/5.3.3
+PleskLin
+PHP/5.3.10
+PHP/5.2.17
+PHP/5.5.9-1ubuntu4.14
+PHP/5.3.29
+PHP/5.1.6
+PHP/5.4.45
+Express
+PHP/5.5.31
+PHP/5.4.45-0+deb7u2
+PHP/5.4.16
+PHP/5.3.23
+WAF/2.0
+PHP/5.5.29
+PHP/5.3.4
+PHP/5.5.30
+PHP/5.3.10-1ubuntu3.21
+PHP/5.3.28
+PHP/5.2.6
+PHP/5.5.9-1ubuntu4.9
+PHP/5.4.43
+PHP/5.3.5
+PHP/5.6.19
+PHP/5.2.9
+PHP/5.3.27
+PHP/5.6.14
+PHP/5.6.18
+PHP/5.5.9-1ubuntu4.11
+PHP/5.2.17p1
+PHP/5.6.17
+PHP/5.3.3-7+squeeze19
+PHP/5.5.33
+ThinkPHP
+PHP/5.6.20
+PHP/5.5.32
+PHP/5.2.14
+PHP/5.3.20
+PHP/5.3.8
+PHP/5.3.6
+PHP/5.2.8
+PHP/5.4.27
+PHP/5.3.2
+PHP/5.5.12
+PHP/5.4.44
+PHP/5.4.23
+Servlet/2.5 JSP/2.1
+PHP/5.5.34
+PHP/5.4.40
