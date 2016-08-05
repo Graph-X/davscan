@@ -95,11 +95,13 @@ def main():
 	pswd = args.password
 	outfile = args.outfile
 	dos = args.dos
+	msf = args.msf
 	unichar = "%c0%af"
 	
 	#pretty pandas up in huuurrrr
 	banner()
 	#build url for fingerprinting
+	#Probably want to make this logic a little less black and white
 	if port == 443:
 		prot = 'https'
 	else:
@@ -126,9 +128,10 @@ def main():
 	#Fingerprint the server  The returned dictionary will have the following main keys 
 	#setup dav client instance
 	client = dav.Client()
-	f = fingerprinter.fingerprint(url) 
+	f = fingerprinter.fingerprint(url,msf,dos) 
 	server = f.pop('Server')
 	davEnabled = f.pop('WebDAV')
+	#clean up crap keys
 	f.pop('Exploit Title')
 	f.pop('')
 	directory = ""
@@ -229,6 +232,7 @@ def get_args():
 	parser.add_argument('-P', '--password', dest='password', default=None, help="password; -P 'P@$$W0rd'", required=False)
 	parser.add_argument('-o', '--out', dest='outfile', default='/tmp/davout', help="output file.  defaults to; -o /tmp/davout", required=False)
 	parser.add_argument('-d', '--no-dos', dest='dos', default=False, help="exclude DOS exploits from results; -d True", required=False)
+	parser.add_argument('-m', '--no-msf', dest='msf', default=False, help="exclude MSF modules from results; -m True", required=False)
 	args = parser.parse_args()
 	if len(sys.argv) == 1:
 		parser.print_help()
