@@ -33,7 +33,7 @@ class bcolors:
 #
 #	
 ######################################################	
-def fingerprint(u):
+def fingerprint(u, msf, dos):
 	d = {}
 	s = requests.session()
 	r = s.options(u)	
@@ -42,7 +42,7 @@ def fingerprint(u):
 			#print(bcolors.HEADER + "[*] looking at header %s " % h + bcolors.ENDC)
 			if "Server" in h:
 				d.update({'Server': r.headers[h]})
-				o = exploit_finder(r.headers[h])
+				o = exploit_finder(r.headers[h], msf, dos)
 				if o is not None:
 					for k,v in o.iteritems():
 						d.update({k:v})
@@ -54,7 +54,7 @@ def fingerprint(u):
 				else:
 					d.update({'WebDAV': 'Disabled'})
 			if "X-Powered-By" in h:
-				x = xfind(r.headers[h])
+				x = xfind(r.headers[h], msf, dos)
 				if x is not None:
 					for k,v in x.iteritems():
 						d.update({k:v})			
@@ -70,7 +70,7 @@ def fingerprint(u):
 #	Returns "y" a list of exploits for the server.
 #
 #######################################################
-def exploit_finder(m):
+def exploit_finder(m, msf, dos):
 	y = {}
 	if "/" in m:
 		n = m.split('/')
@@ -78,61 +78,67 @@ def exploit_finder(m):
 	if n[0] == "Microsoft-IIS":
 		if n[1] == "5.0":
 			from sploits import IIS5
-			y = IIS5().sploits
+			y = IIS5(msf, dos).sploits
 			return y
 		if n[1] == "6.0":
 			from sploits import IIS6
-			y = IIS6().sploits
+			y = IIS6(msf, dos).sploits
 			return y
 		if n[1] == "7.5":
 			from sploits import IIS75
-			y = IIS75().sploits
+			y = IIS75(msf, dos).sploits
 			return y
 		print(bcolors.WARNING + "[-] No public exploits found for IIS version %s" % n[1] + bcolors.ENDC)
 		return None
 	if n[0] == "Apache":
 		if "1.3" in n[1]:
 			from sploits import Apache13
-			y = Apache13().sploits
+			y = Apache13(msf, dos).sploits
 			return y
 		if "2.0" in n[1]:
 			from sploits import Apache20
-			y = Apache20().sploits
+			y = Apache20(msf, dos).sploits
 			return y
 		if "2.2" in n[1]:
 			from sploits import Apache22
-			y = Apache22().sploits
+			y = Apache22(msf, dos).sploits
 			return y
 		if "2.4" in n[1]:
 			from sploits import Apache24
-			y = Apache24().sploits
+			y = Apache24(msf, dos).sploits
 			return y
 		print(bcolors.WARNING + "[-] No public exploits found for Apache version %s" % n[1] + bcolors.ENDC)
 		return None
 	if n[0] == "nginx":
 		if "0.6" in n[1]:
 			from sploits import nginx06
-			y = nginx06().sploits
+			y = nginx06(msf, dos).sploits
 			return y
 		if "0.7" in n[1] or "0.8" in n[1]:
 			#0.7 and 0.8 have the same vulnerabilities.  We'll lump them together
 			from sploits import nginx078
-			y = nginx078().sploits
+			y = nginx078(msf, dos).sploits
 			return y
 		if "1.1.17" in n[1]:
 			from sploits import nginx11
-			y = nginx11().sploits
+			y = nginx11(msf, dos).sploits
 			return y
 			#same as with 0.7 and 0.8 similar vulnerabilities so we combine them.
 		if "1.3.9" in n[1] or "1.4" in n[1]:
 			from sploits import nginx134
-			y = nginx134().sploits
+			y = nginx134(msf, dos).sploits
 			return y
 		print(bcolors.WARNING + "[-] No public exploits found for nginx version %s" %  n[1] + bcolors.ENDC)
 		return None
 	else:
 		print(bcolors.HEADER + "[*] no sploit collection has been provided for %s.  Checking local exploit-db..." % n + bcolors.ENDC)
-		y = subprocess.Popen(['searchsploit', '-t', n], shell=False, stdout = subprocess.PIPE)
+		command = ['searchsploit']
+		if msf:
+			command.append('--no-msf'])
+		command.append(['-t', n])
+		if dos:
+			command.append('| grep -v "/dos/"')
+		y = subprocess.Popen(command, shell=False, stdout = subprocess.PIPE)
 		o = y.communicate()
 		if o[0] is not None:
 			print "[+] Exploits found for the server are:"
@@ -151,7 +157,7 @@ def exploit_finder(m):
 #	technology
 #
 ##########################################################
-def xfind(m):
+def xfind(m, msf, dos):
 	ploit = {}
 	if "," in m:
 		l = m.split(',')
@@ -161,17 +167,15 @@ def xfind(m):
 			if "/" in a:
 				b = a.split('/')
 				if b[0] == "PHP":
-					from sploits import PHP
-					p = PHP(b[1])
-					if p.sploits() is not None:
+					from sploits import PHP(b[1], msf, dos)
+					if PHP.sploits() is not None:
 						for k,v in p.sploits.iteritems():
 							ploit[k] = v
 					else:
 						print("[-] Unable to find public exploits for %s" % a)
 				if b[0] == "ASP.NET":
-					from sploits import ASP
-					p = ASP(b[1])
-					if p.sploits() is not None:
+					from sploits import ASP(b[1],msf, dos)
+					if ASP.sploits() is not None:
 						for k,v in p.sploits().iteritems():
 							ploit[k] = v
 					else:
@@ -181,18 +185,16 @@ def xfind(m):
 			if "/" in m:
 				n = m.split('/')
 				print"[*] Server uses %s and is at version %s" % (n[0], n[1])
-				from sploits import ASP
-				p = ASP(n[1])
-				if p.sploits() is not None:
+				from sploits import ASP(n[1], msf, dos)
+				if ASP.sploits() is not None:
 					for k,v in p.sploits().iteritems():
 						ploit[k] = v
 		if "PHP" in m:
 			if "/" in m:
 				n = m.split('/')
 				print"[*] Server uses %s and is at version %s" % (n[0], n[1])
-				from sploits import PHP
-				p = PHP(n[1])
-				if p.sploits() is not None:
+				from sploits import PHP(n[1], msf, dos)
+				if PHP.sploits() is not None:
 					for k,v in p.sploits().iteritems():
 						ploit[k] = v
 	return ploit
