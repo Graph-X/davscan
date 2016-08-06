@@ -13,13 +13,15 @@ the server based on the results of a root PROPFIND request.
 
 **Unicode Auth Bypass** - Works using GET haven't added PROPFIND yet.  Not fully tested so double check the work.
 
+**Exclusion of DoS exploit results** - placeholder for this in the args, just haven't built it out yet. (not fully tested though)
+
 ## What doesn't work:
 
 **Authentication** - I've started this, but it's not finished yet.  I'll get to it when I actually need it.
 
 **X header fingerprinting** - It's in there, but isn't working right.  Need to debug this.
 
-**Exclusion of DoS exploit results** - placeholder for this in the args, just haven't built it out yet.
+
 
 **Probably a lot more that I haven't tested yet.**
 
