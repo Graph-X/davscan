@@ -15,6 +15,8 @@ the server based on the results of a root PROPFIND request.
 
 **Exclusion of DoS exploit results** - placeholder for this in the args, just haven't built it out yet. (not fully tested though)
 
+**Exclusion of MSF modules from exploit results** - Custom searchsploit is included in the repo for this.  Either overwrite existing searchsploit or backup and replace. (Sooner or later this feature should make it into the official searchsploit script).
+
 ## What doesn't work:
 
 **Authentication** - I've started this, but it's not finished yet.  I'll get to it when I actually need it.
@@ -26,8 +28,6 @@ the server based on the results of a root PROPFIND request.
 **Probably a lot more that I haven't tested yet.**
 
 ## What I want to do:
-
-**Exclusion of MSF modules from exploit results** - Custom searchsploit is included in the repo, haven't added arg or the checks in sploits.py
 
 **Build a sqlite database instead of flat file** - Currently output goes to file with a couple blurbs to the screen just to show it's working.  
 
