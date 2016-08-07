@@ -48,6 +48,7 @@ the server based on the results of a root PROPFIND request.
 `  -u USER, --user USER  user; -u derpina`  
 `  -P PASSWORD, --password PASSWORD  password for user; -P 'P@$$W0rd'`  
 `  -o OUTFILE, --out OUTFILE  output file. defaults to; -o /tmp/davout`  
-`  -d DOS, --no-dos DOS  exclude DOS exploits from results; -d True`  
+`  -d BOOLEAN, --no-dos DOS  exclude DOS exploits from results. Defaults to False; -d True`  
+`  -m BOOLEAN, --no-msf BOOLEAN exclude MSF modules from results. Defaults to False; -m True`  
 
 
