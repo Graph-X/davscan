@@ -134,7 +134,7 @@ def exploit_finder(m, msf, dos):
 		print(bcolors.HEADER + "[*] no sploit collection has been provided for %s.  Checking local exploit-db..." % n + bcolors.ENDC)
 		command = ['searchsploit']
 		if msf:
-			command.append('--no-msf'])
+			command.append(['--no-msf'])
 		command.append(['-t', n])
 		if dos:
 			command.append('| grep -v "/dos/"')
@@ -167,15 +167,15 @@ def xfind(m, msf, dos):
 			if "/" in a:
 				b = a.split('/')
 				if b[0] == "PHP":
-					from sploits import PHP(b[1], msf, dos)
-					if PHP.sploits() is not None:
+					from sploits import PHP
+					if PHP(b[1],msf,dos).sploits() is not None:
 						for k,v in p.sploits.iteritems():
 							ploit[k] = v
 					else:
 						print("[-] Unable to find public exploits for %s" % a)
 				if b[0] == "ASP.NET":
-					from sploits import ASP(b[1],msf, dos)
-					if ASP.sploits() is not None:
+					from sploits import ASP
+					if ASP(b[1],msf,dos).sploits() is not None:
 						for k,v in p.sploits().iteritems():
 							ploit[k] = v
 					else:
@@ -185,16 +185,16 @@ def xfind(m, msf, dos):
 			if "/" in m:
 				n = m.split('/')
 				print"[*] Server uses %s and is at version %s" % (n[0], n[1])
-				from sploits import ASP(n[1], msf, dos)
-				if ASP.sploits() is not None:
-					for k,v in p.sploits().iteritems():
+				from sploits import ASP
+				if ASP(n[1],msf,dos).sploits() is not None:
+					for k,v in ASP(n[1],msf,dos).sploits().iteritems():
 						ploit[k] = v
 		if "PHP" in m:
 			if "/" in m:
 				n = m.split('/')
 				print"[*] Server uses %s and is at version %s" % (n[0], n[1])
-				from sploits import PHP(n[1], msf, dos)
-				if PHP.sploits() is not None:
-					for k,v in p.sploits().iteritems():
+				from sploits import PHP
+				if PHP(n[1],msf,dos).sploits() is not None:
+					for k,v in PHP(n[1],msf,dos).sploits().iteritems():
 						ploit[k] = v
 	return ploit
