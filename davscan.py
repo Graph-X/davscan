@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ########################################################################################################################################
-# DAVScan v0.1 (Codename: This ain't ready for primetime yet, Bubba.)
+# DAVScan v0.5 (Codename: Thai Ladyboy Hookers.)
 #
 # Written by: Graph-X (@graphx)
 #	e-mail: graphx@sigaint.org
@@ -15,7 +15,7 @@
 #	Nothing
 # 
 # TODO:
-#	filter out DOS exploit results ( -d true arg )
+#	
 #	get ASP and PHP exploit results working
 #	make the dav scanner smart enough to not attempt IIS auth bypass unless server is IIS
 #	Bunch of other shit most likely.  I'm just happy it doesn't shit the bed when I run it with just the -H flag.	
@@ -135,7 +135,7 @@ def main():
 	f.pop('Exploit Title')
 	f.pop('')
 	directory = ""
-	tabs = ""
+	#tabs = ""
 	if server == "IIS 6.0" and davEnabled == "Enabled":
 		dabp = True
 	else:
@@ -162,16 +162,16 @@ def main():
 					fname = file[0].split('/')[-2]
 					directory = directory + "/" + fname
 					fname = directory
-					tabs = tabs + "\t"
+					#tabs = tabs + "\t"
 				else:
 					fname = file[0].split('/')[-1]
 				status = file[2].split(' ')[2]
 				size = str(file[1])
 				if status == "OK":
-					i.write(bcolors.OKGREEN + "[+] " + fname + "  " + status + "  " + size + "\n" + tabs + bcolors.ENDC)
+					i.write(bcolors.OKGREEN + "[+] " + fname + "  " + status + "  " + size + "\n" + bcolors.ENDC)
 				else:
 				
-					i.write(bcolors.WARNING + "[-] " + fname + "  " + bcolors.FAIL + status + bcolors.WARNING + "  " + size + "\n" + tabs + bcolors.ENDC)
+					i.write(bcolors.WARNING + "[-] " + fname + "  " + bcolors.FAIL + status + bcolors.WARNING + "  " + size + "\n" + bcolors.ENDC)
 					headers = {'Host': host, 'Translate': 'f', 'Connection': 'close', 'User-Agent': 'RAAAWWWWWWWRRRRRR Dav Auth Bypass!!!'}
 					f = file[0].split('/')[3:]
 					d = len(f) -1
@@ -185,9 +185,9 @@ def main():
 					print("[!!] " + url)
 					response = client.get(url,headers)
 					if response.status_code == 200:
-						i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked!! \n" + tabs + bcolors.ENDC)
+						i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked!! \n" + bcolors.ENDC)
 					else:
-						i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + tabs + bcolors.ENDC)
+						i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + bcolors.ENDC)
 					
 					#	headers = {'Host': host, 'TE': 'trailers', 'Depth': '1', 'Content-Type': 'application/xml', 'User-Agent': 'ZOMG!!!!!!!!!!@#2!@#!@#!!'}
 					#	url = directory
@@ -199,9 +199,9 @@ def main():
 					#	if response.status_code == 200:
 					#		response = client.propfind(url,headers)
 					#		r.update(response)
-					#		i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked! \n" + tabs + bcolors.ENDC)
+					#		i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked! \n" + bcolors.ENDC)
 					#	else:
-					#		i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + tabs + bcolors.ENDC)
+					#		i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + bcolors.ENDC)
 						
 		else:
 			i.write(bcolors.FAIL +  "[-] WebDAV is not enabled.  Unable to map server. \n" + bcolors.ENDC)
@@ -231,8 +231,8 @@ def get_args():
 	parser.add_argument('-u', '--user', dest='user', default=None, help="user; -u derpina", required=False)
 	parser.add_argument('-P', '--password', dest='password', default=None, help="password; -P 'P@$$W0rd'", required=False)
 	parser.add_argument('-o', '--out', dest='outfile', default='/tmp/davout', help="output file.  defaults to; -o /tmp/davout", required=False)
-	parser.add_argument('-d', '--no-dos', dest='dos', default=False, help="exclude DOS exploits from results; -d True", required=False)
-	parser.add_argument('-m', '--no-msf', dest='msf', default=False, help="exclude MSF modules from results; -m True", required=False)
+	parser.add_argument('-d', '--no-dos', dest='dos', action='store_true', help="exclude DoS modules", required=False)
+	parser.add_argument('-m', '--no-msf', dest='msf', action='store_true', help="exclude MSF modules from results", required=False)
 	args = parser.parse_args()
 	if len(sys.argv) == 1:
 		parser.print_help()
