@@ -13,7 +13,7 @@ the server based on the results of a root PROPFIND request.
 
 **Unicode Auth Bypass** - Works using GET haven't added PROPFIND yet.  Not fully tested so double check the work.
 
-**Exclusion of DoS exploit results** - placeholder for this in the args, just haven't built it out yet. (not fully tested though)
+**Exclusion of DoS exploit results** - You can exclude denial of service exploits from the searchsploit results.
 
 **Exclusion of MSF modules from exploit results** - Custom searchsploit is included in the repo for this.  Either overwrite existing searchsploit or backup and replace. (Sooner or later this feature should make it into the official searchsploit script).
 
@@ -36,7 +36,7 @@ the server based on the results of a root PROPFIND request.
 ## Usage:
 
 `usage: davscan.py [-h] -H HOST [-p PORT] [-a AUTH] [-u USER] [-P PASSWORD]`
-`                  [-o OUTFILE] [-d DOS]`
+`                  [-o OUTFILE] [-d ] [-m ]`
 
 `  -H HOST, --host HOST  hostname or IP address of web server; -h foo.com`  
 
@@ -45,10 +45,10 @@ the server based on the results of a root PROPFIND request.
 `  -h, --help            show this help message and exit`  
 `  -p PORT, --port PORT  port to connect to the host on (defaults to port 80); -p 80`  
 `  -a AUTH, --auth AUTH  Basic authentication required; -a basic`  
-`  -u USER, --user USER  user; -u derpina`  
-`  -P PASSWORD, --password PASSWORD  password for user; -P 'P@$$W0rd'`  
-`  -o OUTFILE, --out OUTFILE  output file. defaults to; -o /tmp/davout`  
-`  -d BOOLEAN, --no-dos DOS  exclude DOS exploits from results. Defaults to False; -d True`  
-`  -m BOOLEAN, --no-msf BOOLEAN exclude MSF modules from results. Defaults to False; -m True`  
+`  -u USER, --user USER  user; -u derp`  
+`  -P PASSWORD, --password PASSWORD  password for user; -P 'hunter2'`  
+`  -o OUTFILE, --out OUTFILE  output file. defaults to /tmp/davout; -o /foo/bar`  
+`  -d, --no-dos  exclude DoS results from searchploit.`  
+`  -m, --no-msf  exclude MSF modules from results.`  
 
 
