@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ########################################################################################################################################
-# DAVScan v0.5 (Codename: Thai Ladyboy Hookers.)
+# DAVScan v0.5 (Codename: Cobra Whiskey.)
 #
 # Written by: Graph-X (@graphx)
 #	e-mail: graphx@sigaint.org
