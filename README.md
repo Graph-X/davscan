@@ -15,7 +15,7 @@ the server based on the results of a root PROPFIND request.
 
 **Exclusion of DoS exploit results** - You can exclude denial of service exploits from the searchsploit results.
 
-**Exclusion of MSF modules from exploit results** - Custom searchsploit is included in the repo for this.  Either overwrite existing searchsploit or backup and replace. (Sooner or later this feature should make it into the official searchsploit script).
+**Exclusion of MSF modules from exploit results** - Custom searchsploit is included in the repo for this.  Either overwrite existing searchsploit or backup and replace. This feature may or may not end up in the real searchsploit script.
 
 ## What doesn't work:
 
