@@ -35,20 +35,20 @@ the server based on the results of a root PROPFIND request.
 
 ## Usage:
 
-`usage: davscan.py [-h] -H HOST [-p PORT] [-a AUTH] [-u USER] [-P PASSWORD]`
-`                  [-o OUTFILE] [-d ] [-m ]`
-
-`  -H HOST, --host HOST  hostname or IP address of web server; -h foo.com`  
-
+`usage: davscan.py [-h] [-a AUTH] [-u USER] [-P PASSWORD] [-o OUTFILE] [-d]`
+`                  [-m]`
+`                  url`
+``
+`positional arguments:`
+`  url                   url of the server to scan; https://foo.com:8443/`
+``
 `optional arguments:`
-
-`  -h, --help            show this help message and exit`  
-`  -p PORT, --port PORT  port to connect to the host on (defaults to port 80); -p 80`  
-`  -a AUTH, --auth AUTH  Basic authentication required; -a basic`  
-`  -u USER, --user USER  user; -u derp`  
-`  -P PASSWORD, --password PASSWORD  password for user; -P 'hunter2'`  
-`  -o OUTFILE, --out OUTFILE  output file. defaults to /tmp/davout; -o /foo/bar`  
-`  -d, --no-dos  exclude DoS results from searchploit.`  
-`  -m, --no-msf  exclude MSF modules from results.`  
-
-
+`  -h, --help            show this help message and exit`
+`  -a AUTH, --auth AUTH  Basic authentication required; -a basic`
+`  -u USER, --user USER  user; -u derpina`
+`  -P PASSWORD, --password PASSWORD`
+`                        password; -P 'P@$$W0rd'`
+`  -o OUTFILE, --out OUTFILE`
+`                        output file. defaults to; -o /tmp/davout`
+`  -d, --no-dos          exclude DoS modules`
+`  -m, --no-msf          exclude MSF modules from results`
