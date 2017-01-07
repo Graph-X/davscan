@@ -31,6 +31,10 @@ def elem2file(elem):
     )
 	
 class Client:
+
+    def __init__(self, session):
+        self.session = session
+
     ############################################################
     # get function:
     #	Uses the url that's passed to it and makes a get request
@@ -43,18 +47,16 @@ class Client:
 	#
 	#	Returns "r" as the request response
 	#############################################################
-	def get(self, u, headers=None):
+	def get(self, u,):
+                self.headers = self.session.headers
 		#set the translate and connection headers per kingcope's disclosure
 		#HTTP request should look like this:
 		#> GET / %c0%af/foo/bar/file.zip HTTP/1.1
 		#> Translate: f
 		#> Connection: Close
-		#> User-Agent: TURN THIS SHIT UP TO 11!!
 		#> Host: <hostname>
-		if headers is None:
-			headers = {'Translate': 'f', 'Connection': 'close'}
-		s = requests.session()
-		r = s.request('GET', u, headers=headers)
+		self.headers.update = {'Translate': 'f', 'Connection': 'close'}
+		r = self.session.request('GET', u, headers=self.headers)
 		return r
 		
 	##############################################################
@@ -69,15 +71,14 @@ class Client:
 	#
 	#   Returns "r" as the request response
 	################################################################
-	def propfind(self,u,headers=None):
-		if headers is not None:
-			if 'Depth' not in headers.keys():
-				headers.update({'Depth': 'infinity'})
-		s = requests.session()
-		r = s.request('PROPFIND', u, headers=headers)
+	def propfind(self,u):
+		self.headers = self.session.headers
+		if 'Depth' not in self.headers.keys():
+				self.headers.update({'Depth': 'infinity'})
+		r = self.session.request('PROPFIND', u, headers=self.headers)
 
 		if r.status_code == 301:
-			url = urlparse(response.headers['location'])
+			url = urlparse(r.headers['location'])
 			return self.propfind(url.path)
 
 		tree = xml.fromstring(r.content)

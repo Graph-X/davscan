@@ -1,4 +1,6 @@
+import subprocess
 import requests
+from urlparse import urlparse
 #####################################################
 #
 # Color class for text output
@@ -33,31 +35,34 @@ class bcolors:
 #
 #	
 ######################################################	
-def fingerprint(u, msf, dos):
+def fingerprint(sess, url, msf, dos):
 	d = {}
-	s = requests.session()
-	r = s.options(u)	
+        u = url.scheme + '://' + url.netloc + '/'
+	r = sess.options(u)
+        print("options response status: " + str(r.status_code))
 	if r.status_code == 200:
-		for h in r.headers:	
-			#print(bcolors.HEADER + "[*] looking at header %s " % h + bcolors.ENDC)
-			if "Server" in h:
-				d.update({'Server': r.headers[h]})
-				o = exploit_finder(r.headers[h], msf, dos)
-				if o is not None:
-					for k,v in o.iteritems():
-						d.update({k:v})
-			if "Allow" in h:
-				print("[*] Searching for enabled WebDAV...")
-				if "PROPFIND" in r.headers[h]:
-					print(bcolors.OKGREEN + "[+] WebDAV enabled!" + bcolors.ENDC)
-					d.update({'WebDAV': 'Enabled'})
-				else:
-					d.update({'WebDAV': 'Disabled'})
-			if "X-Powered-By" in h:
-				x = xfind(r.headers[h], msf, dos)
-				if x is not None:
-					for k,v in x.iteritems():
-						d.update({k:v})			
+            print("response headers: ")
+	    for h in r.headers:
+                print("- " + h + " ==> " + r.headers[h])
+		#print(bcolors.HEADER + "[*] looking at header %s " % h + bcolors.ENDC)
+		if "Server" in h:
+		    d.update({'Server': r.headers[h]})
+		    o = exploit_finder(r.headers[h], msf, dos)
+		    if o is not None:
+			for k,v in o.iteritems():
+			    d.update({k:v})
+		if "Allow" in h:
+		    print("[*] Searching for enabled WebDAV...")
+		    if "PROPFIND" in r.headers[h]:
+		        print(bcolors.OKGREEN + "[+] WebDAV enabled!" + bcolors.ENDC)
+			d.update({'WebDAV': 'Enabled'})
+		    else:
+			d.update({'WebDAV': 'Disabled'})
+		if "X-Powered-By" in h:
+		    x = xfind(r.headers[h], msf, dos)
+		    if x is not None:
+			for k,v in x.iteritems():
+			    d.update({k:v})			
 	return d
 #######################################################
 # exploit_find function:
@@ -132,20 +137,9 @@ def exploit_finder(m, msf, dos):
 		return None
 	else:
 		print(bcolors.HEADER + "[*] no sploit collection has been provided for %s.  Checking local exploit-db..." % n + bcolors.ENDC)
-		command = ['searchsploit']
-		if msf:
-			command.append(['--no-msf'])
-		command.append(['-t', n])
-		if dos:
-			command.append('| grep -v "/dos/"')
-		y = subprocess.Popen(command, shell=False, stdout = subprocess.PIPE)
-		o = y.communicate()
-		if o[0] is not None:
-			print "[+] Exploits found for the server are:"
-			return o 
-		else:
-			print("[-] No exploits found!")
-			return None
+		from sploits import Other
+                y = Other(n[0], msf, dos).sploits
+                return y
 #########################################################
 # xfind function:
 #	Uses the x-powered-by header to find technologies

@@ -8,7 +8,23 @@
 
 import subprocess
 import re
-	
+
+class Other:
+    def __init__(self, n, m=False, d=False):
+        command= 'searchsploit'
+        if m:
+            command += ' --no-msf'
+        command += ' -t %s' % n
+        if d:
+            command += '| grep -v "/dos/"'
+        self.sploits = {'Server': n}
+        results = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+        out = results.communicate()
+        for line in out[0].splitlines():
+            if "|" in line:
+                kv = line.split("|")
+                if ( kv[0].strip() != '' or kv[0].strip() != 'Server' or kv[0].strip() != 'Exploit Title'):
+                    self.sploits[kv[0].strip()] = kv[1].strip()
 class IIS5:
     def __init__(self, m=False, d=False):
 	command = 'searchsploit'
