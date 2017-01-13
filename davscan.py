@@ -129,8 +129,10 @@ def main():
 	server = f.get('Server', "No Server Header")
 	davEnabled = f.get('WebDAV', 'Unknown')
 	#clean up crap keys
-	f.pop('Exploit Title')
-	f.pop('')
+        if 'Exploit Title' in f.keys():
+            f.pop('Exploit Title')
+        if '' in f.keys():
+	    f.pop('')
 	directory = ""
 	if server == "IIS/6.0" and davEnabled == "Enabled":
 		dabp = True
