@@ -29,11 +29,8 @@ def elem2file(elem):
         prop(elem, 'status', ''),
         prop(elem, 'getcontenttype', ''),
     )
-	
-class Client:
 
-    def __init__(self, session):
-        self.session = session
+class Client():	
 
     ############################################################
     # get function:
@@ -44,20 +41,20 @@ class Client:
     #	Requires "u" as the url to make the get request against
     #
     #	Optional: "headers" as dict for request headers
-	#
-	#	Returns "r" as the request response
-	#############################################################
-	def get(self, u,):
-                self.headers = self.session.headers
-		#set the translate and connection headers per kingcope's disclosure
-		#HTTP request should look like this:
-		#> GET / %c0%af/foo/bar/file.zip HTTP/1.1
-		#> Translate: f
-		#> Connection: Close
-		#> Host: <hostname>
-		self.headers.update = {'Translate': 'f', 'Connection': 'close'}
-		r = self.session.request('GET', u, headers=self.headers)
-		return r
+    #
+    #	Returns "r" as the request response
+    #############################################################
+    def get(self,s,u):
+            headers = s.headers
+            #set the translate and connection headers per kingcope's disclosure
+       	    #HTTP request should look like this:
+  	    #> GET / %c0%af/foo/bar/file.zip HTTP/1.1
+	    #> Translate: f
+	    #> Connection: Close
+	    #> Host: <hostname>
+	    headers.update({'Translate': 'f', 'Connection': 'close'})
+	    r = s.request('GET', u, headers=headers)
+	    return r
 		
 	##############################################################
 	# propfind function:
@@ -71,15 +68,22 @@ class Client:
 	#
 	#   Returns "r" as the request response
 	################################################################
-	def propfind(self,u):
-		self.headers = self.session.headers
-		if 'Depth' not in self.headers.keys():
-				self.headers.update({'Depth': 'infinity'})
-		r = self.session.request('PROPFIND', u, headers=self.headers)
+    def propfind(self,s,u, headers=None):
+	    headers = s.headers
+            headers.update({"Content-Type": "application/xml"})
+	    if 'Depth' not in headers.keys():
+	        headers.update({'Depth': 'infinity'})
+	    r = s.request('PROPFIND', u, headers=headers)
 
-		if r.status_code == 301:
-			url = urlparse(r.headers['location'])
-			return self.propfind(url.path)
-
-		tree = xml.fromstring(r.content)
-		return [elem2file(elem) for elem in tree.findall('{DAV:}response')]
+	    if r.status_code == 301:
+		url = urlparse(r.headers['location'])
+		return self.propfind(s,url.path)
+            if r.status_code == 200 or r.status_code == 207:
+    	        tree = xml.fromstring(r.content)
+	        return [elem2file(elem) for elem in tree.findall('{DAV:}response')]
+            if r.status_code == 403:
+                #trying again with depth 1
+                headers.update({'Depth': '1'})
+                print("[!] 403 Forbidden status code returned. Adjusting Depth header...")
+                return self.propfind(s,u,headers)
+                

@@ -39,11 +39,11 @@ def fingerprint(sess, url, msf, dos):
 	d = {}
         u = url.scheme + '://' + url.netloc + '/'
 	r = sess.options(u)
-        print("options response status: " + str(r.status_code))
+        #print("options response status: " + str(r.status_code))
 	if r.status_code == 200:
-            print("response headers: ")
+            #print("response headers: ")
 	    for h in r.headers:
-                print("- " + h + " ==> " + r.headers[h])
+                #print("- " + h + " ==> " + r.headers[h])
 		#print(bcolors.HEADER + "[*] looking at header %s " % h + bcolors.ENDC)
 		if "Server" in h:
 		    d.update({'Server': r.headers[h]})
@@ -61,7 +61,7 @@ def fingerprint(sess, url, msf, dos):
 		if "X-Powered-By" in h:
 		    x = xfind(r.headers[h], msf, dos)
 		    if x is not None:
-			for k,v in x.iteritems():
+                    	for k,v in x.iteritems():
 			    d.update({k:v})			
 	return d
 #######################################################

