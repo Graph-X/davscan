@@ -5,27 +5,33 @@ The scanner works by taking advantage of overly privileged/misconfigured WebDAV 
 disclosure or authentication bypass vulnerabilities. The scanner attempts to fingerprint the target server and then spider	
 the server based on the results of a root PROPFIND request.
 
+## Notes:
+
+If you actually take the time to read my shitty code, you'll notice that I decided to change up some of the core of davscan to use beautiful soup which will require libxml.  I decided to do this as a result of running into a REALLY bad dav config that returned almost 500mb of XML data and killed the xmltree library.  BS can.. well... handle that much BS.  It will take a little bit longer to collect and parse out everything, but now DAVScan should be able to handle as much shit as you can shovel into it (assuming you don't run out of memory).  
 ## What works:
 
 **Server header fingerprinting** - If the webserver returns a server header, davscan can search for public exploits based on the response.
 
 **Basic DAV scanning with PROPFIND** - Quick scan to find anything that might be visible from DAV.
 
-**Unicode Auth Bypass** - Works using GET haven't added PROPFIND yet.  Not fully tested so double check the work.
+**IIS/6.0 Unicode Auth Bypass** - Works using GET for files and PROPFIND for folders.  Not fully tested so double check the work.
 
 **Exclusion of DoS exploit results** - You can exclude denial of service exploits from the searchsploit results.
 
 **Exclusion of MSF modules from exploit results** - Custom searchsploit is included in the repo for this.  Either overwrite existing searchsploit or backup and replace. This feature may or may not end up in the real searchsploit script.
 
+**Proxy Capable**  - You can specify an http(s) proxy to use.  This will just pass a proxy the requests session.  I added this in becuase of the need for NTLM auth that requests just can't do at this point in time.
+
+**Authentication** - Just basic auth works right now.  If you need anything like tokenization or something weird, let me know and I'll work on it.  Not a high priority to add further functionality to this though.  Most one off auth needs can be handled using burp and the proxy flag.
+
 ## What doesn't work:
 
-**Authentication** - I've started this, but it's not finished yet.  I'll get to it when I actually need it.
 
-**X header fingerprinting** - It's in there, but isn't working right.  Need to debug this.
-
+**X header fingerprinting** - It's in there, but isn't working right.  I might have this working right now, but not fully tested yet.  
 
 
-**Probably a lot more that I haven't tested yet.**
+
+**Probably a lot more that I haven't tested and whatever the issues might be in the github assuming people care to tell me what is tarded..**
 
 ## What I want to do:
 
@@ -35,8 +41,8 @@ the server based on the results of a root PROPFIND request.
 
 ## Usage:
 
-`usage: davscan.py [-h] [-a AUTH] [-u USER] [-P PASSWORD] [-o OUTFILE] [-d]`
-`                  [-m]`
+`Usage: davscan.py [-h] [-D DEPTH] [-a AUTH] [-u USER] [-p PASSWORD]`
+`                 [-o OUTFILE] [-P PROXY] [-d] [-m]`
 `                  url`
 ``
 `positional arguments:`
@@ -44,11 +50,17 @@ the server based on the results of a root PROPFIND request.
 ``
 `optional arguments:`
 `  -h, --help            show this help message and exit`
+`  -D DEPTH, --depth DEPTH`
+`                        How many folders deep should davscan go (default is`
+`                        infinity); -d 1`
 `  -a AUTH, --auth AUTH  Basic authentication required; -a basic`
 `  -u USER, --user USER  user; -u derpina`
-`  -P PASSWORD, --password PASSWORD`
+`  -p PASSWORD, --password PASSWORD`
 `                        password; -P 'P@$$W0rd'`
 `  -o OUTFILE, --out OUTFILE`
 `                        output file. defaults to; -o /tmp/davout`
+`  -P PROXY, --proxy PROXY`
+`                        proxy server if needed.; -P`
+`                        http://user:pass@1.2.3.4:8080/`
 `  -d, --no-dos          exclude DoS modules`
 `  -m, --no-msf          exclude MSF modules from results`

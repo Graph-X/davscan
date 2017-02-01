@@ -14,6 +14,7 @@ import platform
 from numbers import Number
 import xml.etree.cElementTree as xml
 from collections import namedtuple
+from bs4 import BeautifulSoup as bs
 
 File = namedtuple('File', ['name', 'size', 'status', 'contenttype'])
 
@@ -54,7 +55,7 @@ class Client():
 	    #> Host: <hostname>
 	    headers.update({'Translate': 'f', 'Connection': 'close'})
 	    r = s.request('GET', u, headers=headers)
-	    return r
+            return r
 		
 	##############################################################
 	# propfind function:
@@ -69,18 +70,18 @@ class Client():
 	#   Returns "r" as the request response
 	################################################################
     def propfind(self,s,u, headers=None):
+            print("[*] Sending PROPFIND request...")
 	    headers = s.headers
-            headers.update({"Content-Type": "application/xml"})
 	    if 'Depth' not in headers.keys():
 	        headers.update({'Depth': 'infinity'})
 	    r = s.request('PROPFIND', u, headers=headers)
-
 	    if r.status_code == 301:
 		url = urlparse(r.headers['location'])
 		return self.propfind(s,url.path)
             if r.status_code == 200 or r.status_code == 207:
-    	        tree = xml.fromstring(r.content)
-	        return [elem2file(elem) for elem in tree.findall('{DAV:}response')]
+                print("[*] Listing received.  Parsing XML. Depending on the size this might take a minute...")
+    	        soup = bs(r.text, 'xml')
+                return [r.status_code, soup]
             if r.status_code == 403:
                 #trying again with depth 1
                 headers.update({'Depth': '1'})

