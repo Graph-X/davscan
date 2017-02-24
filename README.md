@@ -29,7 +29,7 @@ If you actually take the time to read my shitty code, you'll notice that I decid
 
 **X header fingerprinting** - It's in there, but isn't working right.  I might have this working right now, but not fully tested yet.  
 
-
+**My ability to proerly document things** - When I switched out the native xml for beautiful soup that came with some requirements I didn't know I wa supposed to tell you about.  You'll want to install that as well as the C library libxml beause it makes things faster.  It also doesn't shit the bed if you feed it half a gig of WebDAV XML. Go ahead, ask me how I found that one out.
 
 **Probably a lot more that I haven't tested and whatever the issues might be in the github assuming people care to tell me what is tarded..**
 
@@ -41,26 +41,26 @@ If you actually take the time to read my shitty code, you'll notice that I decid
 
 ## Usage:
 
-`Usage: davscan.py [-h] [-D DEPTH] [-a AUTH] [-u USER] [-p PASSWORD]`
-`                 [-o OUTFILE] [-P PROXY] [-d] [-m]`
-`                  url`
-``
-`positional arguments:`
-`  url                   url of the server to scan; https://foo.com:8443/`
-``
-`optional arguments:`
-`  -h, --help            show this help message and exit`
-`  -D DEPTH, --depth DEPTH`
-`                        How many folders deep should davscan go (default is`
-`                        infinity); -d 1`
-`  -a AUTH, --auth AUTH  Basic authentication required; -a basic`
-`  -u USER, --user USER  user; -u derpina`
-`  -p PASSWORD, --password PASSWORD`
-`                        password; -P 'P@$$W0rd'`
-`  -o OUTFILE, --out OUTFILE`
-`                        output file. defaults to; -o /tmp/davout`
-`  -P PROXY, --proxy PROXY`
-`                        proxy server if needed.; -P`
-`                        http://user:pass@1.2.3.4:8080/`
-`  -d, --no-dos          exclude DoS modules`
-`  -m, --no-msf          exclude MSF modules from results`
+`Usage: davscan.py [-h] [-D DEPTH] [-a AUTH] [-u USER] [-p PASSWORD] `
+`                 [-o OUTFILE] [-P PROXY] [-d] [-m] `
+`                  url `
+` `
+`positional arguments: `
+`  url                   url of the server to scan; https://foo.com:8443/ `
+` `
+`optional arguments: `
+`  -h, --help            show this help message and exit `
+`  -D DEPTH, --depth DEPTH `
+`                        How many folders deep should davscan go (default is ` 
+`                        infinity); -d 1 ` 
+`  -a AUTH, --auth AUTH  Basic authentication required; -a basic `
+`  -u USER, --user USER  user; -u derpina `
+`  -p PASSWORD, --password PASSWORD `
+`                        password; -P 'P@$$W0rd' `
+`  -o OUTFILE, --out OUTFILE `
+`                        output file. defaults to; -o /tmp/davout `
+`  -P PROXY, --proxy PROXY `
+`                        proxy server if needed.; -P `
+`                        http://user:pass@1.2.3.4:8080/ `
+`  -d, --no-dos          exclude DoS modules `
+`  -m, --no-msf          exclude MSF modules from results `
