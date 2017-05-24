@@ -39,28 +39,38 @@ If you actually take the time to read my shitty code, you'll notice that I decid
 
 **Become a fighter pilot!** - I saw Top Gun once and now I'm really stoked about going into the Air Force and living the dream.  "I feel the need for speed!"
 
+## Contributing:
+Did you know that you can help fix my bad code for me?  It could be like your day job but with no pay and a smidge more recognition since I gain almost nothing from your hard work here.  On the bright side I won't demand you come in on the weekend to play catch up.  Hell I won't even complain if you submit code you wrote when you were drunk.  In case you haven't noticed that's when I do some of my best-ish work.  Just don't submit some silly shit like fixng a typo.  Those are there by design. 
+
+
 ## Usage:
 
-`Usage: davscan.py [-h] [-D DEPTH] [-a AUTH] [-u USER] [-p PASSWORD] `
-`                 [-o OUTFILE] [-P PROXY] [-d] [-m] `
-`                  url `
-` `
-`positional arguments: `
-`  url                   url of the server to scan; https://foo.com:8443/ `
-` `
-`optional arguments: `
-`  -h, --help            show this help message and exit `
-`  -D DEPTH, --depth DEPTH `
-`                        How many folders deep should davscan go (default is ` 
-`                        infinity); -d 1 ` 
-`  -a AUTH, --auth AUTH  Basic authentication required; -a basic `
-`  -u USER, --user USER  user; -u derpina `
-`  -p PASSWORD, --password PASSWORD `
-`                        password; -P 'P@$$W0rd' `
-`  -o OUTFILE, --out OUTFILE `
-`                        output file. defaults to; -o /tmp/davout `
-`  -P PROXY, --proxy PROXY `
-`                        proxy server if needed.; -P `
-`                        http://user:pass@1.2.3.4:8080/ `
-`  -d, --no-dos          exclude DoS modules `
-`  -m, --no-msf          exclude MSF modules from results `
+`Usage: davscan.py [-h] [-D DEPTH] [-a AUTH] [-u USER] [-p PASSWORD]         `
+
+`                 [-o OUTFILE] [-P PROXY] [-d] [-m]  url                                                      `
+
+`                                                                            `
+`positional arguments:                                                       `
+
+`  url                   url of the server to scan; https://foo.com:8443/    `
+`                                                                            `
+
+`optional arguments:                                                         `
+
+`  -h, --help            show this help message and exit                     `
+
+`  -D DEPTH, --depth DEPTH  How many folders deep should davscan go (default is infinity); -d 1    ` 
+
+`  -a AUTH, --auth AUTH  Basic authentication required; -a basic             `
+
+`  -u USER, --user USER  user; -u derpina                                    `
+
+`  -p PASSWORD, --password PASSWORD password; -P 'P@$$W0rd'                  `
+
+`  -o OUTFILE, --out OUTFILE output file. defaults to; -o /tmp/davout`
+
+`  -P PROXY, --proxy PROXY  proxy server if needed.; -P http://user:pass@1.2.3.4:8080/                   `
+
+`  -d, --no-dos          exclude DoS modules                               `
+`  -m, --no-msf          exclude MSF modules from results                  `
+`                                                                          `
