@@ -136,10 +136,10 @@ def exploit_finder(m, msf, dos):
 		print(bcolors.WARNING + "[-] No public exploits found for nginx version %s" %  n[1] + bcolors.ENDC)
 		return None
 	else:
-		print(bcolors.HEADER + "[*] no sploit collection has been provided for %s.  Checking local exploit-db..." % n + bcolors.ENDC)
-		from sploits import Other
-                y = Other(m, msf, dos).sploits
-                return y
+	    print(bcolors.HEADER + "[*] no sploit collection has been provided for %s.  Checking local exploit-db..." % m + bcolors.ENDC)
+	    from sploits import Other
+            y = Other(m, msf, dos).sploits
+            return y
 #########################################################
 # xfind function:
 #	Uses the x-powered-by header to find technologies
