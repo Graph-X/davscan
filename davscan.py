@@ -165,6 +165,10 @@ def main():
 
                     print("[*] First PROPFIND request may take a couple of minutes if the Depth header is infinity and a lot of data is returned.")
                     r = client.propfind(sess,url)
+                    if r is None:
+                        i.write(bcolors.WARNING + "[-] PROPFIND REQUEST FAILED UNABLE TO CONTINUE" + bcolors.ENDC)
+                        print(bcolors.WARNING + "[-] PROPFIND request failed. Unable to continue" + bcolors.ENDC)
+                        sys.exit(1)
 		    for link in r[1].find_all('response'):
                         if link.status is not None:
                             stat = link.status.text.split(' ')[2].strip()
@@ -209,7 +213,7 @@ def main():
 def banner():
 	print(bcolors.HEADER + "\n \
 	[*]===========================================================[*]\n \
-        [*]	 	    DAVscan v1.0 (Operation: Upgrayedd)       [*]\n \
+        [*]	 	   DAVscan v1.01 (Operation: Upgrayedd)       [*]\n \
 	[*]	 	       Written by Graph-X	   	      [*]\n \
 	[*]	 	  e-mail: graphx@sigaint.org 		      [*]\n \
 	[*]  	   	       twitter: @graphx  		      [*]\n \
