@@ -162,15 +162,15 @@ def xfind(m, msf, dos):
 				b = a.split('/')
 				if b[0] == "PHP":
 					from sploits import PHP
-					if PHP(b[1],msf,dos).sploits() is not None:
+					if PHP(b[1],msf,dos).sploits is not None:
 						for k,v in p.sploits.iteritems():
 							ploit[k] = v
 					else:
 						print("[-] Unable to find public exploits for %s" % a)
 				if b[0] == "ASP.NET":
 					from sploits import ASP
-					if ASP(b[1],msf,dos).sploits() is not None:
-						for k,v in p.sploits().iteritems():
+					if ASP(b[1],msf,dos).sploits is not None:
+						for k,v in p.sploits.iteritems():
 							ploit[k] = v
 					else:
 						print("[-] Unable to find public exploits for %s" % a)
@@ -180,15 +180,15 @@ def xfind(m, msf, dos):
 				n = m.split('/')
 				print"[*] Server uses %s and is at version %s" % (n[0], n[1])
 				from sploits import ASP
-				if ASP(n[1],msf,dos).sploits() is not None:
-					for k,v in ASP(n[1],msf,dos).sploits().iteritems():
+				if ASP(n[1],msf,dos).sploits is not None:
+					for k,v in ASP(n[1],msf,dos).sploits.iteritems():
 						ploit[k] = v
 		if "PHP" in m:
 			if "/" in m:
 				n = m.split('/')
 				print"[*] Server uses %s and is at version %s" % (n[0], n[1])
 				from sploits import PHP
-				if PHP(n[1],msf,dos).sploits() is not None:
-					for k,v in PHP(n[1],msf,dos).sploits().iteritems():
+				if PHP(n[1],msf,dos).sploits is not None:
+					for k,v in PHP(n[1],msf,dos).sploits.iteritems():
 						ploit[k] = v
 	return ploit
