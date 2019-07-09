@@ -13,7 +13,7 @@
 #set -x
 ## OS settings
 gitpath="/usr/share/exploitdb"
-csvpath="${gitpath}/files.csv"
+csvpath="${gitpath}/files_exploits.csv"
 
 
 ## Program settings
@@ -41,10 +41,10 @@ MSF=1
 LANG=C
 
 
-## If files.csv is in the searchsploit path, use that instead
-if [[ -f "$( dirname "$0" )/files.csv" ]]; then
+## If files_exploits.csv is in the searchsploit path, use that instead
+if [[ -f "$( dirname "$0" )/files_exploits.csv" ]]; then
   gitpath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-  csvpath="${gitpath}/files.csv"
+  csvpath="${gitpath}/files_exploits.csv"
 fi
 
 
@@ -201,7 +201,7 @@ done
 if [[ "${GETPATH}" -eq 1 ]]; then
   ## Get EDB-ID from input
   edbdb="$( echo ${TAGS} | tr -dc '0-9' )"
-  ## Check files.csv
+  ## Check files_exploits.csv
   location=$( cut -d, -f2 "${csvpath}" | grep -m 1 -E "/${edbdb}(\..*)?$" )
   title=$( grep -m 1 "${location}" "${csvpath}" | cut -d, -f3 | sed 's/"//g')
   ## Join paths
